@@ -1,0 +1,63 @@
+import java.util.HashMap;
+
+class Solution {
+
+    public boolean containsNearbyAlmostDuplicate(int[] nums,
+                                                 int indexDiff,
+                                                 int valueDiff) {
+
+        if (indexDiff <= 0 || valueDiff < 0) {
+            return false;
+        }
+
+        HashMap<Long, Long> map = new HashMap<>();
+
+        long bucketSize = (long) valueDiff + 1;
+
+        for (int i = 0; i < nums.length; i++) {
+
+            long num = nums[i];
+
+            long bucketId = getBucketId(num, bucketSize);
+
+            // Same bucket
+            if (map.containsKey(bucketId)) {
+                return true;
+            }
+
+            // Left bucket
+            if (map.containsKey(bucketId - 1) &&
+                Math.abs(num - map.get(bucketId - 1)) <= valueDiff) {
+                return true;
+            }
+
+            // Right bucket
+            if (map.containsKey(bucketId + 1) &&
+                Math.abs(num - map.get(bucketId + 1)) <= valueDiff) {
+                return true;
+            }
+
+            // Add current number
+            map.put(bucketId, num);
+
+            // Maintain sliding window
+            if (i >= indexDiff) {
+                long oldBucket =
+                    getBucketId(nums[i - indexDiff], bucketSize);
+
+                map.remove(oldBucket);
+            }
+        }
+
+        return false;
+    }
+
+    private long getBucketId(long num, long bucketSize) {
+
+        if (num >= 0) {
+            return num / bucketSize;
+        }
+
+        return ((num + 1) / bucketSize) - 1;
+    }
+}
